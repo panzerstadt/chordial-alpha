@@ -52,6 +52,8 @@ export default function Home() {
           <SynthKey note="C5" keymap="," />
           <SynthKey note="C#5" keymap="l" />
           <SynthKey note="D5" keymap="." />
+          <SynthKey note="D#5" keymap=";" />
+          <SynthKey note="E5" keymap="/" />
         </Track>
       </Song>
 
