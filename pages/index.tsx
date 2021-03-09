@@ -1,9 +1,10 @@
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
 import { Instrument, Song, Track } from "reactronica";
-import { SynthKey } from "../components/instruments/Synth";
+import { makeChord, SynthKey } from "../components/instruments/Synth";
 import styles from "../styles/Home.module.css";
 
+export type KeyboardKeys = typeof keyboardKeys;
 const keyboardKeys = [
   // top row
   { note: "D#2", keymap: "Digit1" },
@@ -48,18 +49,104 @@ const keyboardKeys = [
 ];
 
 export default function Home() {
+  const [isChordProgression, setIsChordProgression] = useState(false);
   const [isChord, toggleIsChord] = useState(false);
-  const [isMajor, toggleIsMajor] = useState(true);
 
+  const [isMajor, toggleIsMajor] = useState(true);
   const handleShift = (e) => {
     if (e.code === "ShiftLeft") {
       toggleIsMajor((p) => !p);
     }
   };
+
+  const [rootNoteIndex, setRootNodeIndex] = useState(0);
+  const handleGetKey = (e) => {
+    const keyCode = e.code;
+    const index = keyboardKeys.findIndex((k) => k.keymap === keyCode);
+    setRootNodeIndex(index);
+  };
   useEffect(() => {
     window.addEventListener("keydown", handleShift);
-    // window.addEventListener("keyup", handleShift);
+    window.addEventListener("keydown", handleGetKey);
   }, []);
+
+  const [degrees, setDegrees] = useState([]);
+  const handleInputDegrees = (e) => {
+    setDegrees([...e.target.value].map((v) => parseInt(v, 10)));
+  };
+
+  const [chordLoop, setChordLoop] = useState([]);
+  const generateChordProgression = (degrees) => {
+    const triad = {
+      major: [4, 3],
+      minor: [3, 4],
+      diminished: [3, 3],
+    };
+
+    const scale = {
+      major: [
+        triad.major,
+        triad.minor,
+        triad.minor,
+        triad.major,
+        triad.major,
+        triad.minor,
+        triad.diminished,
+      ],
+      minor: [
+        triad.minor,
+        triad.diminished,
+        triad.major,
+        triad.minor,
+        triad.major,
+        triad.major,
+        triad.major,
+        triad.diminished,
+      ],
+    };
+
+    const scaleType = isMajor ? "major" : "minor";
+
+    const triads = degrees.map((v) => {
+      if (v === 0) return null;
+      return scale[scaleType][v - 1];
+    });
+    const notes = degrees.map((degree, i) => {
+      const currentTriad = triads[i];
+
+      if (currentTriad === null) return null;
+
+      const makeNote = (rootNoteIndex, degree) => {
+        const rule = "WWhWWWh";
+        const parsedRule = [...rule].map((step) => {
+          if (step === "W") return 2;
+          if (step === "h") return 1;
+          throw new Error("rule error.");
+        });
+        const degreeIndex = degree - 1;
+
+        const sliced = parsedRule.slice(0, degreeIndex);
+        const scaledNote = rootNoteIndex + sliced.reduce((a, b) => a + b, 0);
+
+        // console.log(parsedRule);
+        // console.log("processed", rootNoteIndex, sliced, scaledNote);
+        return scaledNote;
+      };
+
+      return makeChord(
+        keyboardKeys,
+        makeNote(rootNoteIndex, degree),
+        currentTriad
+      );
+    });
+
+    return notes;
+  };
+  useEffect(() => {
+    const chordProgressionLoop = generateChordProgression(degrees);
+    // console.log("new loop!", degrees, chordProgressionLoop);
+    setChordLoop(chordProgressionLoop);
+  }, [rootNoteIndex, degrees]);
 
   return (
     <div
@@ -69,103 +156,108 @@ export default function Home() {
       }}
     >
       <Head>
-        <title>Create Next App</title>
+        <title>Chordial</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Song isPlaying={false}>
+      <Song bpm={60} isPlaying={isChordProgression}>
         <Track>
           {keyboardKeys.map((key, i) => {
             if (!isChord) {
               return (
                 <SynthKey
-                  key={key.note}
-                  notes={[key.note]}
+                  key={"note" + i}
+                  keyboardIndex={i}
                   keymap={key.keymap}
+                  keyboardData={keyboardKeys}
+                  type="note"
                 />
               );
             }
 
-            const major = [4, 3];
-            const minor = [3, 4];
-
-            const triad = isMajor ? major : minor;
-
-            const notes = [
-              key.note,
-              keyboardKeys[i + triad[0]]?.note || null,
-              keyboardKeys[i + triad[0] + triad[1]]?.note || null,
-            ].filter(Boolean);
-
             return (
               <SynthKey
-                key={JSON.stringify(notes)}
-                notes={notes}
+                key={"chord" + i}
+                keyboardIndex={i}
                 keymap={key.keymap}
+                keyboardData={keyboardKeys}
+                type="chord"
+                chordType={isMajor ? "major" : "minor"} // TODO: support diminished chord [3,3]
               />
             );
           })}
         </Track>
+
+        <Track steps={chordLoop}>
+          <Instrument type="synth" />
+        </Track>
       </Song>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>press some keys on your keyboard!</h1>
-
-        <br />
-        <br />
-
-        <h1 className={styles.title}>scales!</h1>
-        <p className={styles.description}>cheat code: WWhWWWh</p>
-
-        <br />
-        <br />
-
-        <h1 className={styles.title}>chords (triads)!</h1>
-        <br />
-        <input
-          style={{ height: 30 }}
-          type="checkbox"
-          onClick={() => toggleIsChord((p) => !p)}
-          name="chord"
-        />
-        <label htmlFor="chord">
-          Ooh what does this tickbox do? (also try tapping left shift!)
-        </label>
-        <p className={styles.description}>
-          cheat code: root, 3rd, 5th (and do them within a scale)
-        </p>
-        <p className={styles.description}>
-          Major chords (happy) - 4,3 (semitones) <br />
-          Minor chords (sad) - 3,4
-        </p>
+        <h1 className={styles.title}>Chordial. make music the cheaty way.</h1>
 
         <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
+          <a href="#" className={styles.card}>
+            <h3>start by pressing some keys on your keyboard!</h3>
+            <p>try some scales! cheat code: WWhWWWh</p>
           </a>
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
+          <a href="#" className={styles.card}>
+            <h3>chords (triads)!</h3>
+            <div style={{ display: "flex", padding: "5px 0 5px 0" }}>
+              <input
+                style={{ height: 30, marginRight: 10 }}
+                type="checkbox"
+                onClick={() => toggleIsChord((p) => !p)}
+                name="chord"
+              />
+              <label htmlFor="chord">
+                Ooh what does this tickbox do? (also try tapping left shift!)
+              </label>
+            </div>
+            <br />
+            <li>cheat code: root, 3rd, 5th (and do them within a scale)</li>
+            <li>Major chords (happy) - 4,3 (semitones)</li>
+            <li>Minor chords (sad) - 3,4</li>
+          </a>
+
+          <a href="#" className={styles.card}>
+            <h3>chord progressions!</h3>
+
+            <li>gimme 4 (or more) numbers between 1 and 6.</li>
+            <li>use 0 for silence.</li>
+            <li>tick the checkbox below to start looping.</li>
+            <li>
+              any key you press will be the root note of the chord progression.
+            </li>
+            <br />
+            <input
+              type="text"
+              name="chord progression"
+              placeholder="e.g. 1564"
+              onChange={handleInputDegrees}
+            />
+            <br />
+            <div style={{ display: "flex", padding: "5px 0 5px 0" }}>
+              <input
+                style={{ height: 30, marginRight: 10 }}
+                type="checkbox"
+                disabled={chordLoop.length === 0}
+                onClick={() => setIsChordProgression((p) => !p)}
+                name="chordProgression"
+              />
+              <label htmlFor="chordProgression">
+                now tick to play the above chord progression!
+              </label>
+            </div>
           </a>
 
           <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
+            href="https://www.youtube.com/watch?v=rgaTLrZGlk0"
             className={styles.card}
           >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
+            <h3>what else should i add here?</h3>
+            <p>Gotta keep watching this youtube video i guess...</p>
           </a>
         </div>
       </main>
