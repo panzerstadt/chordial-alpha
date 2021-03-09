@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Instrument } from "reactronica";
 
-export const SynthKey = ({ note, keymap }) => {
+interface Props {
+  notes: string[];
+  keymap: string;
+}
+
+export const SynthKey: React.FC<Props> = ({ notes, keymap }) => {
   const [pressed, setPressed] = useState(false);
 
   const handleKeypress = (e) => {
-    if (e.key === keymap) {
+    if (e.code === keymap) {
       setPressed(e.type === "keydown");
+      console.log("notes being played: ", notes);
     }
   };
 
@@ -20,5 +26,10 @@ export const SynthKey = ({ note, keymap }) => {
     };
   }, []);
 
-  return <Instrument type="synth" notes={pressed ? [{ name: note }] : null} />;
+  return (
+    <Instrument
+      type="synth"
+      notes={pressed ? notes.map((n) => ({ name: n })) : null}
+    />
+  );
 };
