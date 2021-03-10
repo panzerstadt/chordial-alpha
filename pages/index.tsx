@@ -69,6 +69,12 @@ export default function Home() {
       toggleIsMajor((p) => !p);
     }
   };
+  const handleTab = (e) => {
+    if (e.code === "Tab") {
+      toggleIsChord((p) => !p);
+      e.preventDefault();
+    }
+  };
 
   const [rootNoteIndex, setRootNodeIndex] = useState(0);
   const [debouncedRootNoteIndex] = useDebounce(rootNoteIndex, 50);
@@ -79,7 +85,14 @@ export default function Home() {
   };
   useEffect(() => {
     window.addEventListener("keydown", handleShift);
+    window.addEventListener("keydown", handleTab);
     window.addEventListener("keydown", handleGetKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleShift);
+      window.removeEventListener("keydown", handleTab);
+      window.removeEventListener("keydown", handleGetKey);
+    };
   }, []);
 
   const [degrees, setDegrees] = useState([]);
@@ -231,7 +244,8 @@ export default function Home() {
               <input
                 style={{ height: 30, marginRight: 10 }}
                 type="checkbox"
-                onClick={() => toggleIsChord((p) => !p)}
+                onChange={() => toggleIsChord((p) => !p)}
+                checked={isChord}
                 name="chord"
               />
               <label htmlFor="chord">
@@ -276,6 +290,24 @@ export default function Home() {
               </label>
             </div>
           </div>
+
+          <a
+            href="https://youtu.be/rgaTLrZGlk0?t=1229"
+            target="__blank"
+            rel="noreferrer noopener"
+            className={styles.card}
+          >
+            <h3>hooooleeeee</h3>
+            <p>so there's something called inversions....</p>
+            <br />
+            <li>
+              the main point of which is to 'bring the chords closer together so
+              that the same instrument occupies its own space'
+            </li>
+            <li>
+              plus, reinforce the lowest notes by playing them 1 octave lower
+            </li>
+          </a>
 
           <a
             href="https://www.youtube.com/watch?v=rgaTLrZGlk0"
