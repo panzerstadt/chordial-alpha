@@ -197,12 +197,12 @@ export default function Home() {
         <h1 className={styles.title}>Chordial. make music the cheaty way.</h1>
 
         <div className={styles.grid}>
-          <a href="#" className={styles.card}>
+          <div className={styles.card}>
             <h3>start by pressing some keys on your keyboard!</h3>
             <p>try some scales! cheat code: WWhWWWh</p>
-          </a>
+          </div>
 
-          <a href="#" className={styles.card}>
+          <div className={styles.card}>
             <h3>chords (triads)!</h3>
             <div style={{ display: "flex", padding: "5px 0 5px 0" }}>
               <input
@@ -219,9 +219,9 @@ export default function Home() {
             <li>cheat code: root, 3rd, 5th (and do them within a scale)</li>
             <li>Major chords (happy) - 4,3 (semitones)</li>
             <li>Minor chords (sad) - 3,4</li>
-          </a>
+          </div>
 
-          <a href="#" className={styles.card}>
+          <div className={styles.card}>
             <h3>chord progressions!</h3>
 
             <li>gimme 4 (or more) numbers between 1 and 6.</li>
@@ -250,10 +250,12 @@ export default function Home() {
                 now tick to play the above chord progression!
               </label>
             </div>
-          </a>
+          </div>
 
           <a
             href="https://www.youtube.com/watch?v=rgaTLrZGlk0"
+            target="__blank"
+            rel="noreferrer noopener"
             className={styles.card}
           >
             <h3>what else should i add here?</h3>
