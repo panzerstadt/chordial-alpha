@@ -208,6 +208,7 @@ export default function Home() {
           <div className={styles.card}>
             <h3>start by pressing some keys on your keyboard!</h3>
             <p>try some scales! cheat code: WWhWWWh</p>
+            <p>try this: 5,543,3w1,1w,w457w45</p>
           </div>
 
           <div className={styles.card}>
@@ -227,6 +228,7 @@ export default function Home() {
             <li>cheat code: root, 3rd, 5th (and do them within a scale)</li>
             <li>Major chords (happy) - 4,3 (semitones)</li>
             <li>Minor chords (sad) - 3,4</li>
+            <p>now try the above pattern with chords!</p>
           </div>
 
           <div className={styles.card}>
