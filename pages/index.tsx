@@ -47,6 +47,16 @@ const keyboardKeys = [
   { note: "D5", keymap: "Period" },
   { note: "D#5", keymap: "Semicolon" },
   { note: "E5", keymap: "Slash" },
+  // notes with no keys
+  { note: "F5" },
+  { note: "F#5" },
+  { note: "G5" },
+  { note: "G#5" },
+  { note: "A5" },
+  { note: "A#5" },
+  { note: "B5" },
+  { note: "C6" },
+  { note: "C#6" },
 ];
 
 export default function Home() {
@@ -77,7 +87,11 @@ export default function Home() {
   const handleInputDegrees = (e) => {
     setIsChordProgression(false);
     setChordLoop([]);
-    setDegrees([...e.target.value].map((v) => parseInt(v, 10)));
+
+    const isValid = [...e.target.value].every((v) =>
+      parseInt(v, 10) ? true : false
+    );
+    isValid && setDegrees([...e.target.value].map((v) => parseInt(v, 10)));
   };
 
   const [chordLoop, setChordLoop] = useState([]);
@@ -194,11 +208,11 @@ export default function Home() {
           })}
         </Track>
 
-        {chordLoop.length && (
+        {chordLoop.length ? (
           <Track steps={chordLoop}>
             <Instrument type="synth" polyphony={10} />
           </Track>
-        )}
+        ) : null}
       </Song>
 
       <main className={styles.main}>

@@ -17,7 +17,7 @@ export const makeChord = (keyboardData, keyboardIndex, selectedTriad) => {
 
 interface Props {
   keyboardIndex: number;
-  keymap: string;
+  keymap?: string;
   type?: "note" | "chord" | "chordProgression";
   keyboardData: KeyboardKeys;
   chordType?: "major" | "minor" | "diminished";
