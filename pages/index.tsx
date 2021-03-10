@@ -1,6 +1,7 @@
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
 import { Instrument, Song, Track } from "reactronica";
+import { useDebounce } from "use-debounce/lib";
 import { makeChord, SynthKey } from "../components/instruments/Synth";
 import styles from "../styles/Home.module.css";
 
@@ -60,6 +61,7 @@ export default function Home() {
   };
 
   const [rootNoteIndex, setRootNodeIndex] = useState(0);
+  const [debouncedRootNoteIndex] = useDebounce(rootNoteIndex, 50);
   const handleGetKey = (e) => {
     const keyCode = e.code;
     const index = keyboardKeys.findIndex((k) => k.keymap === keyCode);
@@ -71,7 +73,10 @@ export default function Home() {
   }, []);
 
   const [degrees, setDegrees] = useState([]);
+  const [debouncedDegrees] = useDebounce(degrees, 50);
   const handleInputDegrees = (e) => {
+    setIsChordProgression(false);
+    setChordLoop([]);
     setDegrees([...e.target.value].map((v) => parseInt(v, 10)));
   };
 
@@ -145,8 +150,9 @@ export default function Home() {
   useEffect(() => {
     const chordProgressionLoop = generateChordProgression(degrees);
     // console.log("new loop!", degrees, chordProgressionLoop);
+
     setChordLoop(chordProgressionLoop);
-  }, [rootNoteIndex, degrees]);
+  }, [debouncedRootNoteIndex, debouncedDegrees]);
 
   return (
     <div
@@ -188,9 +194,11 @@ export default function Home() {
           })}
         </Track>
 
-        <Track steps={chordLoop}>
-          <Instrument type="synth" />
-        </Track>
+        {chordLoop.length && (
+          <Track steps={chordLoop}>
+            <Instrument type="synth" polyphony={10} />
+          </Track>
+        )}
       </Song>
 
       <main className={styles.main}>
@@ -243,6 +251,7 @@ export default function Home() {
                 style={{ height: 30, marginRight: 10 }}
                 type="checkbox"
                 disabled={chordLoop.length === 0}
+                checked={isChordProgression}
                 onClick={() => setIsChordProgression((p) => !p)}
                 name="chordProgression"
               />
