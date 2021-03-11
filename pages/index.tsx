@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Instrument, Song, Track } from "reactronica";
 import { useDebounce } from "use-debounce/lib";
 import { makeChord, SynthKey } from "../components/instruments/Synth";
+import { NoteView, useRecordNotes } from "../components/outputs/NoteView";
 import styles from "../styles/Home.module.css";
 
 export type KeyboardKeys = typeof keyboardKeys;
@@ -181,6 +182,8 @@ export default function Home() {
     setChordLoop(chordProgressionLoop);
   }, [debouncedRootNoteIndex, debouncedDegrees]);
 
+  const [playedNotes, recordNotes] = useRecordNotes();
+
   return (
     <div
       className={styles.container}
@@ -204,6 +207,7 @@ export default function Home() {
                   keymap={key.keymap}
                   keyboardData={keyboardKeys}
                   type="note"
+                  onNote={recordNotes}
                 />
               );
             }
@@ -216,22 +220,46 @@ export default function Home() {
                 keyboardData={keyboardKeys}
                 type="chord"
                 chordType={isMajor ? "major" : "minor"} // TODO: support diminished chord [3,3]
+                onNote={recordNotes}
               />
             );
           })}
         </Track>
 
         {chordLoop.length ? (
-          <Track steps={chordLoop}>
+          <Track steps={chordLoop} onStepPlay={recordNotes}>
             <Instrument type="synth" polyphony={10} />
           </Track>
         ) : null}
       </Song>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>Chordial. make music the cheaty way.</h1>
+        <h1 className="text-lg font-semibold text-center sm:text-6xl sm:max-w-2xl">
+          Chordial. make music the cheaty way.
+        </h1>
 
-        <div className={styles.grid}>
+        <div
+          className="w-full max-w-5xl mt-10 transition-all ease-in-out"
+          style={{
+            height: playedNotes.length ? "fit-content" : "0",
+            opacity: playedNotes.length ? "100%" : "0%",
+          }}
+        >
+          <div
+            className={
+              styles.card + " " + "transition-all ease-in-out overflow-x-hidden"
+            }
+            style={{
+              opacity: playedNotes.length ? "100%" : "0%",
+              minHeight: 70,
+              width: "95%",
+            }}
+          >
+            <NoteView notesBeingPlayed={playedNotes} />
+          </div>
+        </div>
+
+        <div className="grid w-full max-w-5xl mt-10 sm:grid-cols-2">
           <div className={styles.card}>
             <h3>start by pressing some keys on your keyboard!</h3>
             <p>try some scales! cheat code: WWhWWWh</p>

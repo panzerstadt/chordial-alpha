@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Instrument } from "reactronica";
+import { Instrument, StepNoteType } from "reactronica";
 import { KeyboardKeys } from "../../../pages";
 
 const assert = (asserted, message) => {
@@ -21,7 +21,7 @@ interface Props {
   type?: "note" | "chord" | "chordProgression";
   keyboardData: KeyboardKeys;
   chordType?: "major" | "minor" | "diminished";
-  //   degrees?: number[];
+  onNote?: Function;
 }
 
 export const SynthKey: React.FC<Props> = ({
@@ -30,14 +30,39 @@ export const SynthKey: React.FC<Props> = ({
   keyboardData,
   chordType,
   type = "note",
-  //   degrees,
+  onNote,
 }) => {
-  const [pressed, setPressed] = useState(false);
+  const makeNotes = ({
+    chordType,
+    type,
+    keyboardData,
+    keyboardIndex,
+  }): StepNoteType[] => {
+    const triad = {
+      major: [4, 3],
+      minor: [3, 4],
+      diminished: [3, 3],
+    };
 
+    if (type === "note") {
+      return [keyboardData[keyboardIndex].note].map((n) => ({ name: n }));
+    }
+    if (type === "chord") {
+      assert(
+        chordType,
+        'a key of type "chord" needs a chordType. select either major, minor, or diminished.'
+      );
+      const selectedTriad = triad[chordType];
+      return makeChord(keyboardData, keyboardIndex, selectedTriad).map((n) => ({
+        name: n,
+      }));
+    }
+  };
+
+  const [isPressed, setIsPressed] = useState(false);
   const handleKeypress = (e) => {
     if (e.code === keymap) {
-      setPressed(e.type === "keydown");
-      // console.log("notes being played: ", notes());
+      setIsPressed(e.type === "keydown");
     }
   };
 
@@ -51,30 +76,21 @@ export const SynthKey: React.FC<Props> = ({
     };
   }, []);
 
-  const notes = (): string[] => {
-    const triad = {
-      major: [4, 3],
-      minor: [3, 4],
-      diminished: [3, 3],
-    };
-
-    if (type === "note") {
-      return [keyboardData[keyboardIndex].note];
-    }
-    if (type === "chord") {
-      assert(
+  const [notesToPlay, setNotes] = useState(null);
+  useEffect(() => {
+    if (isPressed) {
+      const notes = makeNotes({
         chordType,
-        'a key of type "chord" needs a chordType. select either major, minor, or diminished.'
-      );
-      const selectedTriad = triad[chordType];
-      return makeChord(keyboardData, keyboardIndex, selectedTriad);
+        type,
+        keyboardData,
+        keyboardIndex,
+      });
+      setNotes(notes);
+      onNote && onNote(notes);
+    } else {
+      setNotes(null);
     }
-  };
+  }, [isPressed]);
 
-  return (
-    <Instrument
-      type="synth"
-      notes={pressed ? notes().map((n) => ({ name: n })) : null}
-    />
-  );
+  return <Instrument type="synth" notes={notesToPlay} />;
 };
