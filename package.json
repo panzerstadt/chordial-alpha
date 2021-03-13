@@ -8,7 +8,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "@reach/slider": "^0.13.2",
     "next": "10.0.8",
+    "rc-slider": "^9.7.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "reactronica": "^0.4.5",

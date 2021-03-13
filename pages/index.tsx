@@ -2,6 +2,7 @@ import Head from "next/head";
 import React, { useEffect, useState } from "react";
 import { Instrument, Song, Track } from "reactronica";
 import { useDebounce } from "use-debounce/lib";
+import { BpmSlider } from "../components/BpmSlider";
 import { makeChord, SynthKey } from "../components/instruments/Synth";
 import { NoteView, useRecordNotes } from "../components/outputs/NoteView";
 import styles from "../styles/Home.module.css";
@@ -184,6 +185,8 @@ export default function Home() {
 
   const [playedNotes, recordNotes] = useRecordNotes();
 
+  const [bpm, setBpm] = useState(60);
+
   return (
     <div
       className={styles.container}
@@ -196,7 +199,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Song bpm={60} isPlaying={isChordProgression}>
+      <Song bpm={bpm} isPlaying={isChordProgression}>
         <Track>
           {keyboardKeys.map((key, i) => {
             if (!isChord) {
@@ -313,9 +316,10 @@ export default function Home() {
                 onClick={() => setIsChordProgression((p) => !p)}
                 name="chordProgression"
               />
-              <label htmlFor="chordProgression">
-                now tick to play the above chord progression!
-              </label>
+              <label htmlFor="chordProgression">play chord progression!</label>
+            </div>
+            <div className="flex items-center justify-center w-full">
+              <BpmSlider onValue={setBpm} />
             </div>
           </div>
 
