@@ -3,12 +3,16 @@ import React, { useEffect, useState } from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 
-export const BpmSlider = ({ onValue }) => {
-  const [value, setValue] = useState(80);
+export const BpmSlider = ({ onValue, bpm }) => {
+  const [value, setValue] = useState(bpm);
 
   useEffect(() => {
     onValue && onValue(value);
   }, [value]);
+
+  useEffect(() => {
+    bpm && setValue(bpm);
+  }, [bpm]);
   return (
     <>
       <div className="w-36">

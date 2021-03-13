@@ -7,6 +7,15 @@ import { makeChord, SynthKey } from "../components/instruments/Synth";
 import { NoteView, useRecordNotes } from "../components/outputs/NoteView";
 import styles from "../styles/Home.module.css";
 
+const handleKeyDown = (keymap, toggleFunc, preventDefault = false) => {
+  return (e) => {
+    if (e.code === keymap) {
+      toggleFunc((p) => !p);
+      preventDefault && e.preventDefault();
+    }
+  };
+};
+
 export type KeyboardKeys = typeof keyboardKeys;
 const keyboardKeys = [
   // top row
@@ -62,21 +71,18 @@ const keyboardKeys = [
 ];
 
 export default function Home() {
-  const [isChordProgression, setIsChordProgression] = useState(false);
+  const [isPlayingChordProgression, setIsPlayingChordProgression] = useState(
+    false
+  );
+
   const [isChord, toggleIsChord] = useState(false);
+  const handleTab = handleKeyDown("Tab", toggleIsChord, true);
 
   const [isMajor, toggleIsMajor] = useState(true);
-  const handleShift = (e) => {
-    if (e.code === "ShiftLeft") {
-      toggleIsMajor((p) => !p);
-    }
-  };
-  const handleTab = (e) => {
-    if (e.code === "Tab") {
-      toggleIsChord((p) => !p);
-      e.preventDefault();
-    }
-  };
+  const handleShift = handleKeyDown("ShiftLeft", toggleIsMajor);
+
+  const toggleIsChordProgression = setIsPlayingChordProgression; // const [isPlaying, toggleIsPlaying] = useState(false);
+  const handlePlay = handleKeyDown("Space", toggleIsChordProgression, true);
 
   const [rootNoteIndex, setRootNodeIndex] = useState(0);
   const [debouncedRootNoteIndex] = useDebounce(rootNoteIndex, 50);
@@ -85,28 +91,56 @@ export default function Home() {
     const index = keyboardKeys.findIndex((k) => k.keymap === keyCode);
     setRootNodeIndex(index);
   };
+
+  const [bpm, setBpm] = useState(60);
+  const handleNudgeBpm = (e) => {
+    const keyCode = e.code;
+    switch (keyCode) {
+      case "ArrowLeft":
+        setBpm((p) => p - 1);
+        break;
+      case "ArrowRight":
+        setBpm((p) => p + 1);
+        break;
+    }
+  };
+
+  const keydownHandlers = [
+    handleShift,
+    handleTab,
+    handleGetKey,
+    handlePlay,
+    handleNudgeBpm,
+  ];
   useEffect(() => {
-    window.addEventListener("keydown", handleShift);
-    window.addEventListener("keydown", handleTab);
-    window.addEventListener("keydown", handleGetKey);
+    keydownHandlers.forEach((handler) => {
+      window.addEventListener("keydown", handler);
+    });
 
     return () => {
-      window.removeEventListener("keydown", handleShift);
-      window.removeEventListener("keydown", handleTab);
-      window.removeEventListener("keydown", handleGetKey);
+      keydownHandlers.forEach((handler) => {
+        window.removeEventListener("keydown", handler);
+      });
     };
   }, []);
 
   const [degrees, setDegrees] = useState([]);
   const [debouncedDegrees] = useDebounce(degrees, 50);
   const handleInputDegrees = (e) => {
-    setIsChordProgression(false);
+    setIsPlayingChordProgression(false);
     setChordLoop([]);
 
-    const isValid = [...e.target.value].every((v) =>
-      parseInt(v, 10) ? true : false
-    );
-    isValid && setDegrees([...e.target.value].map((v) => parseInt(v, 10)));
+    const isValid = [...e.target.value].every((v) => {
+      const num = parseInt(v, 10);
+
+      if (!num) return false;
+      if (num < 0 || num > 6) return false;
+      return true;
+    });
+
+    isValid
+      ? setDegrees([...e.target.value].map((v) => parseInt(v, 10)))
+      : setDegrees([]);
   };
 
   const [chordLoop, setChordLoop] = useState([]);
@@ -185,8 +219,6 @@ export default function Home() {
 
   const [playedNotes, recordNotes] = useRecordNotes();
 
-  const [bpm, setBpm] = useState(60);
-
   return (
     <div
       className={styles.container}
@@ -199,7 +231,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Song bpm={bpm} isPlaying={isChordProgression}>
+      <Song bpm={bpm} isPlaying={isPlayingChordProgression}>
         <Track>
           {keyboardKeys.map((key, i) => {
             if (!isChord) {
@@ -238,7 +270,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className="text-lg font-semibold text-center sm:text-6xl sm:max-w-2xl">
-          Chordial. make music the cheaty way.
+          Chordial. fun with chords.
         </h1>
 
         <div
@@ -305,6 +337,7 @@ export default function Home() {
               name="chord progression"
               placeholder="1564"
               onChange={handleInputDegrees}
+              value={degrees.join("")}
             />
             <br />
             <div style={{ display: "flex", padding: "5px 0 5px 0" }}>
@@ -312,14 +345,14 @@ export default function Home() {
                 style={{ height: 30, marginRight: 10 }}
                 type="checkbox"
                 disabled={chordLoop.length === 0}
-                checked={isChordProgression}
-                onClick={() => setIsChordProgression((p) => !p)}
+                checked={isPlayingChordProgression}
+                onClick={() => setIsPlayingChordProgression((p) => !p)}
                 name="chordProgression"
               />
               <label htmlFor="chordProgression">play chord progression!</label>
             </div>
             <div className="flex items-center justify-center w-full">
-              <BpmSlider onValue={setBpm} />
+              <BpmSlider onValue={setBpm} bpm={bpm} />
             </div>
           </div>
 
