@@ -252,7 +252,6 @@ export default function Home() {
             style={{
               opacity: playedNotes.length ? "100%" : "0%",
               minHeight: 70,
-              width: "95%",
             }}
           >
             <NoteView notesBeingPlayed={playedNotes} />
@@ -298,9 +297,10 @@ export default function Home() {
             </li>
             <br />
             <input
+              className="text-lg font-bold text-blue-600"
               type="text"
               name="chord progression"
-              placeholder="e.g. 1564"
+              placeholder="1564"
               onChange={handleInputDegrees}
             />
             <br />

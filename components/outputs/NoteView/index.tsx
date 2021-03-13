@@ -13,23 +13,22 @@ export const useRecordNotes = (): [Note[], (note: StepNoteType[]) => void] => {
 type Note = { name: string };
 export const NoteView = ({ notesBeingPlayed }) => {
   return (
-    <div className="flex justify-end w-full ">
-      {notesBeingPlayed.map((noteOrChord: Note | Note[], i) => {
-        if (Array.isArray(noteOrChord)) {
-          // chord
-          return (
-            <p
-              className={`px-3 border-l-2 ${i === 0 && "border-blue-500"}`}
-              key={"chord" + i}
-            >
-              {noteOrChord.map((notes) => (
-                <span className="mr-2 text-gray-700">{notes.name}</span>
-              ))}
-            </p>
-          );
-        }
+    <div className="flex justify-end sm:w-full">
+      {notesBeingPlayed.map((noteOrChord: Note[], i) => {
+        const isLatest = notesBeingPlayed.length - 1 === i;
 
-        return <p key={i}>{noteOrChord.name}</p>;
+        return (
+          <p
+            className={`px-3 border-l-2 ${i === 0 && "border-blue-500"} ${
+              isLatest ? "text-red-600" : "text-gray-600"
+            }`}
+            key={"chord" + i}
+          >
+            {noteOrChord.map((notes) => (
+              <span className="mr-2 ">{notes.name}</span>
+            ))}
+          </p>
+        );
       })}
     </div>
   );
