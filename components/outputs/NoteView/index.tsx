@@ -24,8 +24,10 @@ export const NoteView = ({ notesBeingPlayed }) => {
             }`}
             key={"chord" + i}
           >
-            {noteOrChord.map((notes) => (
-              <span className="mr-2 ">{notes.name}</span>
+            {noteOrChord.map((notes, j) => (
+              <span className="mr-2" key={"note" + j}>
+                {notes.name}
+              </span>
             ))}
           </p>
         );
