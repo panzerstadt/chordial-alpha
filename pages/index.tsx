@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Instrument, Song, Track } from "reactronica";
 import { useDebounce } from "use-debounce/lib";
 import { BpmSlider } from "../components/BpmSlider";
+import { PlayButton } from "../components/Button";
 import { makeChord, SynthKey } from "../components/instruments/Synth";
 import { NoteView, useRecordNotes } from "../components/outputs/NoteView";
 import styles from "../styles/Home.module.css";
@@ -219,7 +220,7 @@ export default function Home() {
 
   const [playedNotes, recordNotes] = useRecordNotes();
 
-  const [isExpandedNoteView, setIsExpandedNoteView] = useState(false);
+  // const [isExpandedNoteView, setIsExpandedNoteView] = useState(false);
 
   return (
     <div
@@ -274,9 +275,28 @@ export default function Home() {
         <h1 className="text-lg font-semibold text-center sm:text-6xl sm:max-w-2xl">
           Chordial. fun with chords.
         </h1>
+        <br />
+        <br />
 
         <div
-          className="w-full max-w-5xl mt-10 transition-all ease-in-out"
+          className="flex justify-between w-full max-w-5xl mx-4 mb-4 transition-opacity ease-in-out"
+          style={{
+            opacity: isPlayingChordProgression ? 1 : 0,
+            pointerEvents: isPlayingChordProgression ? "all" : "none",
+          }}
+        >
+          <div className="ml-3">
+            <BpmSlider onValue={setBpm} bpm={bpm} />
+          </div>
+          <div className="mr-3">
+            <PlayButton
+              onClick={() => setIsPlayingChordProgression((p) => !p)}
+              isPlaying={isPlayingChordProgression}
+            />
+          </div>
+        </div>
+        <div
+          className="w-full max-w-5xl transition-all ease-in-out"
           style={{
             height: playedNotes.length ? "fit-content" : "0",
             opacity: playedNotes.length ? "100%" : "0%",
@@ -292,19 +312,13 @@ export default function Home() {
               opacity: playedNotes.length ? "100%" : "0%",
               minHeight: 70,
             }}
-            onClick={() => setIsExpandedNoteView((p) => !p)}
+            // onClick={() => setIsExpandedNoteView((p) => !p)}
           >
-            {isExpandedNoteView ? (
-              <div className="mb-3">
-                <BpmSlider onValue={setBpm} bpm={bpm} />
-              </div>
-            ) : null}
-
             <NoteView notesBeingPlayed={playedNotes} />
           </div>
         </div>
 
-        <div className="grid w-full max-w-5xl mt-10 sm:grid-cols-2">
+        <div className="grid w-full max-w-5xl gap-4 mt-10 sm:gap-8 sm:grid-cols-2">
           <div className={styles.card}>
             <h3>start by pressing some keys on your keyboard!</h3>
             <p>try some scales! cheat code: WWhWWWh</p>
