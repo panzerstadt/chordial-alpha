@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Instrument, Song, Track } from "reactronica";
 import { useDebounce } from "use-debounce/lib";
 import { BpmSlider } from "../components/BpmSlider";
-import { PlayButton } from "../components/Button";
+import { PlayButton, RecordButton } from "../components/Button";
 import { makeChord, SynthKey } from "../components/instruments/Synth";
 import { NoteView, useRecordNotes } from "../components/outputs/NoteView";
 import styles from "../styles/Home.module.css";
@@ -280,18 +280,26 @@ export default function Home() {
 
         <div
           className="flex justify-between w-full max-w-5xl mx-4 mb-4 transition-opacity ease-in-out"
-          style={{
-            opacity: isPlayingChordProgression ? 1 : 0,
-            pointerEvents: isPlayingChordProgression ? "all" : "none",
-          }}
+          style={
+            {
+              // opacity: isPlayingChordProgression ? 1 : 0,
+              // pointerEvents: isPlayingChordProgression ? "all" : "none",
+            }
+          }
         >
           <div className="ml-3">
             <BpmSlider onValue={setBpm} bpm={bpm} />
           </div>
-          <div className="mr-3">
+          <div className="flex items-center gap-3 mr-3">
             <PlayButton
               onClick={() => setIsPlayingChordProgression((p) => !p)}
-              isPlaying={isPlayingChordProgression}
+              isActive={isPlayingChordProgression}
+            />
+            <RecordButton
+              size={25}
+              onClick={() => alert("coming soon!")}
+              isActive={false}
+              activeColor="red"
             />
           </div>
         </div>
