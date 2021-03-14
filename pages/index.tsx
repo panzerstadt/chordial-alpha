@@ -219,6 +219,8 @@ export default function Home() {
 
   const [playedNotes, recordNotes] = useRecordNotes();
 
+  const [isExpandedNoteView, setIsExpandedNoteView] = useState(false);
+
   return (
     <div
       className={styles.container}
@@ -282,13 +284,22 @@ export default function Home() {
         >
           <div
             className={
-              styles.card + " " + "transition-all ease-in-out overflow-x-hidden"
+              styles.card +
+              " " +
+              "transition-all ease-in-out overflow-x-hidden cursor-pointer"
             }
             style={{
               opacity: playedNotes.length ? "100%" : "0%",
               minHeight: 70,
             }}
+            onClick={() => setIsExpandedNoteView((p) => !p)}
           >
+            {isExpandedNoteView ? (
+              <div className="mb-3">
+                <BpmSlider onValue={setBpm} bpm={bpm} />
+              </div>
+            ) : null}
+
             <NoteView notesBeingPlayed={playedNotes} />
           </div>
         </div>

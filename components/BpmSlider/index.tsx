@@ -14,13 +14,13 @@ export const BpmSlider = ({ onValue, bpm }) => {
     bpm && setValue(bpm);
   }, [bpm]);
   return (
-    <>
+    <div className="flex items-center">
       <div className="w-36">
         <Slider value={value} min={1} max={200} onChange={setValue} />
       </div>
-      <p className="pl-6">
+      <p className="flex items-center pl-6">
         <small>{value} bpm</small>
       </p>
-    </>
+    </div>
   );
 };
