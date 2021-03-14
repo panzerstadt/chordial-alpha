@@ -280,12 +280,10 @@ export default function Home() {
 
         <div
           className="flex justify-between w-full max-w-5xl mx-4 mb-4 transition-opacity ease-in-out"
-          style={
-            {
-              // opacity: isPlayingChordProgression ? 1 : 0,
-              // pointerEvents: isPlayingChordProgression ? "all" : "none",
-            }
-          }
+          style={{
+            opacity: isPlayingChordProgression ? 1 : 0.3,
+            pointerEvents: isPlayingChordProgression ? "all" : "none",
+          }}
         >
           <div className="ml-3">
             <BpmSlider onValue={setBpm} bpm={bpm} />
@@ -312,9 +310,7 @@ export default function Home() {
         >
           <div
             className={
-              styles.card +
-              " " +
-              "transition-all ease-in-out overflow-x-hidden cursor-pointer"
+              styles.card + " " + "transition-all ease-in-out overflow-x-hidden"
             }
             style={{
               opacity: playedNotes.length ? "100%" : "0%",

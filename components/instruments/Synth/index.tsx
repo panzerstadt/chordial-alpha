@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Instrument, StepNoteType } from "reactronica";
 import { KeyboardKeys } from "../../../pages";
+import { chordAnalogBassSamples } from "../mapping";
 
 const assert = (asserted, message) => {
   if (!asserted) throw new Error(message);
@@ -22,6 +23,7 @@ interface Props {
   keyboardData: KeyboardKeys;
   chordType?: "major" | "minor" | "diminished";
   onNote?: Function;
+  isReady: (ready: boolean) => void;
 }
 
 export const SynthKey: React.FC<Props> = ({
@@ -31,6 +33,7 @@ export const SynthKey: React.FC<Props> = ({
   chordType,
   type = "note",
   onNote,
+  isReady,
 }) => {
   const makeNotes = ({
     chordType,
@@ -91,6 +94,33 @@ export const SynthKey: React.FC<Props> = ({
       setNotes(null);
     }
   }, [isPressed]);
+
+  const [isLoaded, setIsLoaded] = useState(false);
+  useEffect(() => {
+    return () => {
+      setIsLoaded(false);
+      isReady && isReady(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded && notesToPlay?.length) {
+      console.warn("not ready. not playing note: ", notesToPlay);
+    }
+  }, [isLoaded, notesToPlay]);
+
+  return (
+    <Instrument
+      key={"chordAnalogBrass"}
+      type="sampler"
+      samples={chordAnalogBassSamples}
+      notes={isLoaded ? notesToPlay : null}
+      onLoad={() => {
+        setIsLoaded(true);
+        isReady && isReady(true);
+      }}
+    />
+  );
 
   return <Instrument type="synth" notes={notesToPlay} />;
 };
