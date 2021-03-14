@@ -4,7 +4,8 @@ import { Instrument, Song, Track } from "reactronica";
 import { useDebounce } from "use-debounce/lib";
 import { BpmSlider } from "../components/BpmSlider";
 import { PlayButton, RecordButton } from "../components/Button";
-import { makeChord, SynthKey } from "../components/instruments/Synth";
+import { SynthKey } from "../components/instruments/Synth";
+import { makeChord } from "../components/instruments/withKey";
 import { NoteView, useRecordNotes } from "../components/outputs/NoteView";
 import styles from "../styles/Home.module.css";
 
