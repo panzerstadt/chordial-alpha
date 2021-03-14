@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StepNoteType } from "reactronica";
-import { KeyboardKeys } from "../../../pages";
+import { KeyboardKeys } from "../../mappings/keys";
 
 const assert = (asserted, message) => {
   if (!asserted) throw new Error(message);

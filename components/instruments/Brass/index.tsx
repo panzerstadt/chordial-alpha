@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Instrument } from "reactronica";
-import { chordAnalogBassSamples } from "../mapping";
+import { chordAnalogBassSamples } from "../../../mappings/instruments";
 import { withKey } from "../withKey";
 
 export const BrassKey = withKey(({ isReady, notes }) => {
