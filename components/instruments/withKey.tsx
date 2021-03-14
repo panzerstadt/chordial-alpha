@@ -22,6 +22,7 @@ interface Props {
   keyboardData: KeyboardKeys;
   chordType?: "major" | "minor" | "diminished";
   onNote?: Function;
+  isReady?: (ready: boolean) => void;
 }
 
 export const withKey = (ChordialInstrument: React.ElementType) => ({
@@ -31,6 +32,7 @@ export const withKey = (ChordialInstrument: React.ElementType) => ({
   chordType,
   type = "note",
   onNote,
+  isReady,
 }: Props) => {
   const makeNotes = ({
     chordType,
@@ -92,7 +94,7 @@ export const withKey = (ChordialInstrument: React.ElementType) => ({
     }
   }, [isPressed]);
 
-  return <ChordialInstrument notes={notesToPlay} />;
+  return <ChordialInstrument notes={notesToPlay} isReady={isReady} />;
 
   //   const [isLoaded, setIsLoaded] = useState(false);
   //   useEffect(() => {

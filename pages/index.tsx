@@ -4,6 +4,7 @@ import { Instrument, Song, Track } from "reactronica";
 import { useDebounce } from "use-debounce/lib";
 import { BpmSlider } from "../components/BpmSlider";
 import { PlayButton, RecordButton } from "../components/Button";
+import { BrassKey } from "../components/instruments/Brass";
 import { SynthKey } from "../components/instruments/Synth";
 import { makeChord } from "../components/instruments/withKey";
 import { NoteView, useRecordNotes } from "../components/outputs/NoteView";
@@ -223,6 +224,10 @@ export default function Home() {
 
   // const [isExpandedNoteView, setIsExpandedNoteView] = useState(false);
 
+  // TODO: load more than 2, use statecharts with xstate
+  const [isSynth, toggleSynth] = useState(false);
+  const [isBrassReady, setIsBrassReady] = useState(false);
+
   return (
     <div
       className={styles.container}
@@ -239,27 +244,56 @@ export default function Home() {
         <Track>
           {keyboardKeys.map((key, i) => {
             if (!isChord) {
+              if (isSynth) {
+                return (
+                  <SynthKey
+                    key={"note-synth" + i}
+                    keyboardIndex={i}
+                    keymap={key.keymap}
+                    keyboardData={keyboardKeys}
+                    type="note"
+                    onNote={recordNotes}
+                  />
+                );
+              }
+
               return (
-                <SynthKey
-                  key={"note" + i}
+                <BrassKey
+                  key={"note-brass" + i}
                   keyboardIndex={i}
                   keymap={key.keymap}
                   keyboardData={keyboardKeys}
                   type="note"
+                  onNote={recordNotes}
+                  isReady={setIsBrassReady}
+                />
+              );
+            }
+
+            if (isSynth) {
+              return (
+                <SynthKey
+                  key={"chord-synth" + i}
+                  keyboardIndex={i}
+                  keymap={key.keymap}
+                  keyboardData={keyboardKeys}
+                  type="chord"
+                  chordType={isMajor ? "major" : "minor"} // TODO: support diminished chord [3,3]
                   onNote={recordNotes}
                 />
               );
             }
 
             return (
-              <SynthKey
-                key={"chord" + i}
+              <BrassKey
+                key={"chord-brass" + i}
                 keyboardIndex={i}
                 keymap={key.keymap}
                 keyboardData={keyboardKeys}
                 type="chord"
                 chordType={isMajor ? "major" : "minor"} // TODO: support diminished chord [3,3]
                 onNote={recordNotes}
+                isReady={setIsBrassReady}
               />
             );
           })}
@@ -280,16 +314,31 @@ export default function Home() {
         <br />
 
         <div
-          className="flex justify-between w-full max-w-5xl mx-4 mb-4 transition-opacity ease-in-out"
-          style={{
-            opacity: isPlayingChordProgression ? 1 : 0.3,
-            pointerEvents: isPlayingChordProgression ? "all" : "none",
-          }}
+          className="grid justify-between w-full max-w-5xl grid-cols-3 mx-4 mb-4 transition-opacity ease-in-out"
+          // style={{
+          //   opacity: isPlayingChordProgression ? 1 : 0.3,
+          //   pointerEvents: isPlayingChordProgression ? "all" : "none",
+          // }}
         >
           <div className="ml-3">
             <BpmSlider onValue={setBpm} bpm={bpm} />
           </div>
-          <div className="flex items-center gap-3 mr-3">
+          <div
+            className="flex justify-center gap-4 font-semibold"
+            onClick={() => toggleSynth((p) => !p)}
+          >
+            <p className="font-bold text-indigo-500 cursor-pointer">
+              {isSynth ? "SYNTH" : "BRASS CHORD"}
+            </p>
+            {!isSynth ? (
+              isBrassReady ? (
+                <p className="text-green-500">ready</p>
+              ) : (
+                <p className="text-pink-700">loading</p>
+              )
+            ) : null}
+          </div>
+          <div className="flex items-center justify-end gap-3 mr-3">
             <PlayButton
               onClick={() => setIsPlayingChordProgression((p) => !p)}
               isActive={isPlayingChordProgression}
