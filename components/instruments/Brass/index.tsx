@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Instrument } from "reactronica";
-import { chordAnalogBassSamples } from "../../../mappings/instruments";
+import { chordAnalogBrassSamples } from "../../../mappings/instruments";
 import { withKey } from "../withKey";
 
 export const BrassKey = withKey(({ isReady, notes }) => {
@@ -22,7 +22,7 @@ export const BrassKey = withKey(({ isReady, notes }) => {
     <Instrument
       key={"chordAnalogBrass"}
       type="sampler"
-      samples={chordAnalogBassSamples}
+      samples={chordAnalogBrassSamples}
       notes={isLoaded ? notes : null}
       onLoad={() => {
         setIsLoaded(true);
